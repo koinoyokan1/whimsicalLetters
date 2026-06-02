@@ -1,29 +1,31 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, BookOpen, Coffee, Menu, X, BookMarked } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, BookOpen, Coffee, Menu, X } from "lucide-react";
 
 const TOTAL_PAGES = 24; // Change this to match your actual page count
 
 export default function BookReader() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [imageError, setImageError] = useState(false);
-  const mainRef = useRef(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const goToPage = useCallback((page) => {
-    if (page < 1 || page > TOTAL_PAGES) return;
-    setCurrentPage(page);
-    setImageError(false);
-    if (mainRef.current) mainRef.current.scrollTop = 0;
-  }, []);
-
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") goToPage(currentPage + 1);
-      if (e.key === "ArrowLeft" || e.key === "ArrowUp") goToPage(currentPage - 1);
+    const goToPage = (page) => {
+      if (page < 1 || page > TOTAL_PAGES) return;
+      setCurrentPage(page);
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [currentPage, goToPage]);
+
+useEffect(() => {
+  const handleKey = (e) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      setCurrentPage((p) => Math.min(TOTAL_PAGES, p + 1));
+    }
+
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      setCurrentPage((p) => Math.max(1, p - 1));
+    }
+  };
+
+  window.addEventListener("keydown", handleKey);
+  return () => window.removeEventListener("keydown", handleKey);
+}, []);
 
   return (
     <div
@@ -70,12 +72,10 @@ export default function BookReader() {
   <Coffee size={18} />
   BUY ME COFFEE ☕
 </a>
-      {/* ── BODY ── */}
       <div className="flex flex-1 overflow-hidden relative">
-        {/* ── SIDEBAR ── */}
         <aside
-          className="shrink-0 flex flex-col border-r overflow-hidden transition-all duration-300 ease-in-out"
-          style={{
+className="shrink-0 flex flex-col border-r overflow-hidden transition-all duration-300"
+style={{
             width: isSidebarOpen ? "200px" : "0px",
             background: "#18160f",
             borderColor: "#2e2820",
@@ -95,18 +95,12 @@ export default function BookReader() {
               <button
                 key={p}
                 onClick={() => goToPage(p)}
-                className="w-full text-left px-4 py-2 text-sm transition-all duration-150 flex items-center gap-2"
+className="w-full text-left px-4 py-2 text-sm flex items-center gap-2"
                 style={{
                   background: currentPage === p ? "#2e2820" : "transparent",
                   color: currentPage === p ? "#c9a96e" : "#7a6e5e",
                   borderLeft: currentPage === p ? "2px solid #c9a96e" : "2px solid transparent",
                   fontFamily: "'Georgia', serif",
-                }}
-                onMouseEnter={(e) => {
-                  if (currentPage !== p) e.currentTarget.style.color = "#b09070";
-                }}
-                onMouseLeave={(e) => {
-                  if (currentPage !== p) e.currentTarget.style.color = "#7a6e5e";
                 }}
               >
                 <BookOpen size={11} style={{ opacity: 0.6, flexShrink: 0 }} />
@@ -116,85 +110,28 @@ export default function BookReader() {
           </div>
         </aside>
 
-        {/* ── MAIN READING AREA ── */}
         <main
-          ref={mainRef}
           className="flex-1 relative flex items-center justify-center overflow-hidden"
           style={{ background: "#0f0e0c" }}
         >
 
 
-          {/* Page image */}
-          <div
-className="relative w-full h-full flex items-center justify-center px-1"
-style={{}}
-          >
-            {/* Image or Placeholder */}
-            {imageError ? (
-              /* ── PLACEHOLDER ── */
-              <div
-                className="w-full rounded-lg flex flex-col items-center justify-center gap-6 border"
-                style={{
-                  minHeight: "80vh",
-                  background: "linear-gradient(160deg, #1e1b14 0%, #16140f 100%)",
-                  borderColor: "#2e2820",
-                  boxShadow: "0 8px 48px rgba(0,0,0,0.6)",
-                }}
-              >
-                <div
-                  className="w-20 h-20 rounded-full flex items-center justify-center"
-                  style={{ background: "#2e2820" }}
-                >
-                  <BookOpen size={36} style={{ color: "#c9a96e", opacity: 0.7 }} />
-                </div>
-                <div className="text-center px-8">
-                  <p
-                    className="text-lg mb-1"
-                    style={{ color: "#c9a96e", fontFamily: "'Georgia', serif" }}
-                  >
-                    Page {currentPage}
-                  </p>
-                  <p className="text-xs tracking-widest" style={{ color: "#5a4e3e" }}>
-                    Place your image at{" "}
-                    <code
-                      className="px-1 rounded text-xs"
-                      style={{ background: "#2a2218", color: "#a08050" }}
-                    >
-                      public/pages/{currentPage}.jpg
-                    </code>
-                  </p>
-                </div>
-                <div
-                  className="w-24 h-px"
-                  style={{ background: "linear-gradient(90deg, transparent, #3a3228, transparent)" }}
-                />
-                <p className="text-xs" style={{ color: "#3a3228" }}>
-                  Image not found
-                </p>
-              </div>
-            ) : (
-<div className="relative flex items-center justify-center">
+<div className="w-full h-full flex items-center justify-center px-1">
   <img
     key={currentPage}
     src={`${import.meta.env.BASE_URL}pages/${currentPage}.jpg`}
     alt={`Page ${currentPage}`}
-    className="rounded-lg mx-auto"
+    className="rounded-lg"
     style={{
-      maxHeight: "98vh",
+      maxHeight: "100vh",
       maxWidth: "100%",
-      width: "auto",
-      objectFit: "contain",
-      display: "block",
       boxShadow: "0 8px 48px rgba(0,0,0,0.7)",
     }}
-    onError={() => setImageError(true)}
   />
-</div>            )}
-          </div>
+</div>
 
         </main>
 
-        {/* ── FLOATING PREV BUTTON ── */}
         <button
           onClick={() => goToPage(currentPage - 1)}
           disabled={currentPage <= 1}
@@ -213,14 +150,13 @@ style={{}}
             color: currentPage <= 1 ? "#3a3228" : "#c9a96e",
             backdropFilter: "blur(4px)",
             marginLeft: isSidebarOpen ? "200px" : "0",
-            transition: "all 0.3s ease",
+              transition: "margin-left 0.3s ease",
           }}
           aria-label="Previous page"
         >
           <ChevronLeft size={20} />
         </button>
 
-        {/* ── FLOATING NEXT BUTTON ── */}
         <button
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage >= TOTAL_PAGES}
