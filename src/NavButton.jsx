@@ -7,9 +7,9 @@ export default function NavButton({ direction, onClick, disabled }) {
     <button
       onClick={onClick}
       disabled={disabled}
-      className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-200 hover:scale-110"
+      type="button"
+      className={`page-nav-button ${isLeft ? "page-nav-left" : "page-nav-right"} flex items-center justify-center transition-all duration-200 hover:scale-110 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       style={{
-        [isLeft ? "left" : "right"]: "-28px",
         width: "52px",
         height: "80px",
         background: disabled
@@ -21,6 +21,7 @@ export default function NavButton({ direction, onClick, disabled }) {
         boxShadow: "0 0 15px rgba(255,215,100,0.4), 0 0 35px rgba(255,215,100,0.25)",
         zIndex: 20,
       }}
+      aria-label={isLeft ? "Previous page" : "Next page"}
     >
       {isLeft ? <ChevronLeft size={28} /> : <ChevronRight size={28} />}
     </button>
