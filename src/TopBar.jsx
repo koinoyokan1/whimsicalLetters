@@ -1,5 +1,6 @@
 import { Menu, X, Coffee, Sparkles } from "lucide-react";
-export default function TopBar({ isSidebarOpen, onToggleSidebar, currentPage, totalPages, onAbout }) {
+
+export default function TopBar({ isSidebarOpen, onToggleSidebar, onAbout }) {
   return (
     <div className="fixed top-4 left-4 right-4 z-50 flex flex-wrap items-center justify-between gap-3">
       <button
@@ -40,9 +41,6 @@ export default function TopBar({ isSidebarOpen, onToggleSidebar, currentPage, to
           <Coffee size={18} />
           BUY ME COFFEE
         </a>
-        <div className="px-4 py-2 rounded-2xl border border-white/10 bg-[#1d1b14]/95 text-xs tracking-[0.18em] uppercase text-[#d4bc8f] backdrop-blur-md">
-          {currentPage} / {totalPages}
-        </div>
       </div>
     </div>
   );
