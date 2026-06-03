@@ -63,9 +63,6 @@ export default function AboutModal({ open, onClose }) {
               fontWeight: "bold",
             }}
           >
-            <Sparkles size={28} />
-            Meet The Author
-            <Sparkles size={28} />
           </div>
         </div>
 
@@ -88,6 +85,7 @@ export default function AboutModal({ open, onClose }) {
             }}
           >
             Hey there, I'm Ajay Nair 👋
+
           </h2>
 
           <p style={{ marginBottom: "20px" }}>
@@ -121,11 +119,42 @@ export default function AboutModal({ open, onClose }) {
             to leave a lesson feeling something: inspired, surprised, even
             mildly shocked.
           </p>
-          <p style={{ marginBottom: "20px" }}>
-             <strong>Contact Me</strong>
-            <br />
-            ajaynair59 at gmail dot com
-          </p>
+<p
+  style={{
+    marginBottom: "24px",
+    padding: "16px",
+    border: "1px solid rgba(201,169,110,0.25)",
+    borderRadius: "12px",
+    background: "rgba(201,169,110,0.08)",
+  }}
+>
+  ☕ <strong>NEED MOTIVATION!!!</strong>
+  <br />
+  <br />
+  This book took many late nights, countless hours, and an unhealthy amount of
+  coffee to put together. I already have enough ideas for a <strong>Part 2 </strong>
+  floating around in my head, but unfortunately my motivation system has a
+  critical design flaw: it runs entirely on positive reinforcement.
+  <br />
+  <br />
+  Here's the deal: if <strong>100 amazing readers buy me a coffee or send me an email that they loved this book</strong>, I'll
+  take that as a sign from the universe that I should stop being lazy, open my
+  editor, and start writing the next volume.
+  <br />
+  <br />
+  Think of it as a community-funded quest to rescue an author from procrastination.
+  Every coffee unlocks a little more motivation. Somewhere around coffee #100,
+  Part 2 should magically appear. 🚀
+  <br />
+  <br />
+❤️
+</p>
+
+<p style={{ marginBottom: "20px" }}>
+  <strong>Contact Me</strong>
+  <br />
+  ajaynair59 at gmail dot com
+</p>
           <div
             style={{
               textAlign: "center",
