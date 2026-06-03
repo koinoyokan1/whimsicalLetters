@@ -1,5 +1,7 @@
 import HTMLFlipBook from "react-pageflip";
 import { forwardRef, useRef, useEffect, useState } from "react";
+// Imported Chevron icons to act as visual cues
+import { ChevronLeft, ChevronRight, MoveHorizontal } from "lucide-react";
 
 const BookPage = forwardRef(({ pageNumber }, ref) => {
   return (
@@ -19,14 +21,14 @@ BookPage.displayName = "BookPage";
 export default function PageImage({ totalPages, onPageTurned }) {
   const bookRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // New State: Tracks if the user has interacted yet to show/hide hints
+  const [hasInteracted, setHasInteracted] = useState(false);
 
-  // 1. Monitor window resizing to flip between desktop and mobile layout properties
   useEffect(() => {
     const checkMobile = () => {
-      // 768px is the standard tablet/mobile breakpoint
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 900);
     };
-    
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -36,36 +38,79 @@ export default function PageImage({ totalPages, onPageTurned }) {
     const handleKey = (e) => {
       if (!bookRef.current) return;
       const flip = bookRef.current.pageFlip();
-      if (e.key === "ArrowRight") flip.flipNext();
-      if (e.key === "ArrowLeft") flip.flipPrev();
+      if (e.key === "ArrowRight") {
+        flip.flipNext();
+        setHasInteracted(true);
+      }
+      if (e.key === "ArrowLeft") {
+        flip.flipPrev();
+        setHasInteracted(true);
+      }
     };
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
+  const handlePageFlip = (e) => {
+    setHasInteracted(true); // Dismisses onboarding hints on drag/click flip
+    onPageTurned?.(e.data + 1);
+  };
+
+  const totalBookWidth = isMobile ? 550 : 1100;
+
   return (
-    <div className="w-full h-full flex items-center justify-center overflow-hidden">
+    <div className="w-full h-full flex items-center justify-center overflow-hidden relative">
+      
+      {/* 1. INITIAL ONBOARDING OVERLAY
+          This displays a floating, pulsing instruction box right over the center of the book.
+          It fades out automatically once they click or drag anywhere. */}
+      {!hasInteracted && (
+        <div 
+          onClick={() => setHasInteracted(true)}
+          className="absolute z-40 bg-black/70 backdrop-blur-sm text-white px-4 py-3 rounded-full flex items-center gap-2 pointer-events-auto cursor-pointer select-none animate-bounce shadow-2xl border border-white/20 text-sm tracking-wide font-medium"
+          style={{ top: "60%" }}
+        >
+          <MoveHorizontal size={16} className="text-[#ffd765]" />
+          <span>Click corners or drag to flip pages</span>
+        </div>
+      )}
+
+      {/* 2. SIDE NAV HINT ARROWS
+          Subtle click zones on the left/right screen edges that highlight to reveal functionality. */}
+      <button 
+        onClick={() => { bookRef.current?.pageFlip().flipPrev(); setHasInteracted(true); }}
+        className="absolute left-4 z-30 p-2 rounded-full bg-black/20 hover:bg-black/60 text-white/40 hover:text-white transition-all duration-200 focus:outline-none hidden sm:flex items-center justify-center cursor-pointer"
+        aria-label="Previous page"
+      >
+        <ChevronLeft size={32} />
+      </button>
+
+      <button 
+        onClick={() => { bookRef.current?.pageFlip().flipNext(); setHasInteracted(true); }}
+        className="absolute right-4 z-30 p-2 rounded-full bg-black/20 hover:bg-black/60 text-white/40 hover:text-white transition-all duration-200 focus:outline-none hidden sm:flex items-center justify-center cursor-pointer"
+        aria-label="Next page"
+      >
+        <ChevronRight size={32} />
+      </button>
+
+      {/* Book Workspace Container */}
       <div 
         className="flex items-center justify-center origin-center transition-transform duration-150"
         style={{
-          // 2. Adjust base canvas calculations depending on layout mode
-          // On Mobile: Canvas is 550px wide (1 Page)
-          // On Desktop: Canvas is 1100px wide (2 Page Spread)
-          "--book-width": isMobile ? "550px" : "1100px",
+          "--book-width": `${totalBookWidth}px`,
           "--book-height": "750px",
           "--height-buffer": isMobile ? "160px" : "120px", 
-          
-          // 3. Absolute Scaling Matrix: Shrinks the element as soon as it hits EITHER a width limit or height limit
           transform: "scale(min(calc(92vw / var(--book-width)), calc((100vh - var(--height-buffer)) / var(--book-height))))"
         }}
       >
         <HTMLFlipBook
+          key={isMobile ? "book-mobile" : "book-desktop"}
           ref={bookRef}
           width={550}
           height={750}
           size="fixed"
-          usePortrait={isMobile} // Active on mobile (1 page), Inactive on desktop (2 pages)
+          usePortrait={isMobile} 
           showCover={true}
           mobileScrollSupport={true}
           useMouseEvents={true}
@@ -74,7 +119,7 @@ export default function PageImage({ totalPages, onPageTurned }) {
           swipeDistance={30}
           maxShadowOpacity={0.5}
           startZIndex={0}
-          onFlip={(e) => onPageTurned?.(e.data + 1)}
+          onFlip={handlePageFlip} // Triggers the dismiss handle
         >
           {Array.from({ length: totalPages }, (_, i) => (
             <BookPage key={i + 1} pageNumber={i + 1} />

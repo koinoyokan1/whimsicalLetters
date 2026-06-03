@@ -68,6 +68,14 @@ img {
   cursor: grab;
 }
 
+/* Inside index.css */
+.stf__parent {
+  cursor: grab !important;
+}
+.stf__parent:active {
+  cursor: grabbing !important;
+}
+
 .magazine:active {
   cursor: grabbing;
 }
