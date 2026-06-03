@@ -6,11 +6,17 @@ const TOTAL_PAGES = 24; // Change this to match your actual page count
 export default function BookReader() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const [isChanging, setIsChanging] = useState(false);
+const goToPage = (page) => {
+  if (page < 1 || page > TOTAL_PAGES || page === currentPage) return;
 
-    const goToPage = (page) => {
-      if (page < 1 || page > TOTAL_PAGES) return;
-      setCurrentPage(page);
-    };
+  setIsChanging(true);
+
+  setTimeout(() => {
+    setCurrentPage(page);
+    setIsChanging(false);
+  }, 120);
+};
 
 useEffect(() => {
   const handleKey = (e) => {
@@ -23,15 +29,33 @@ useEffect(() => {
     }
   };
 
+
   window.addEventListener("keydown", handleKey);
   return () => window.removeEventListener("keydown", handleKey);
 }, []);
 
+  useEffect(() => {
+  for (let p = currentPage - 2; p <= currentPage + 2; p++) {
+    if (p >= 1 && p <= TOTAL_PAGES && p !== currentPage) {
+      const img = new Image();
+      img.src = `${import.meta.env.BASE_URL}pages/${p}.jpg`;
+    }
+  }
+}, [currentPage]);
   return (
-    <div
-      className="flex flex-col h-screen overflow-hidden"
-      style={{ background: "#0f0e0c", fontFamily: "'Georgia', 'Times New Roman', serif" }}
-    >
+<div
+  className="flex flex-col h-screen overflow-hidden"
+  style={{
+    backgroundImage: `
+      linear-gradient(rgba(15,14,12,0.75), rgba(15,14,12,0.75)),
+      url(${import.meta.env.BASE_URL}background.png)
+    `,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    fontFamily: "'Georgia', 'Times New Roman', serif",
+  }}
+>
 <button
   onClick={() => setIsSidebarOpen((v) => !v)}
   className="fixed top-4 left-4 z-50 p-2 rounded-lg"
@@ -112,74 +136,88 @@ className="w-full text-left px-4 py-2 text-sm flex items-center gap-2"
 
         <main
           className="flex-1 relative flex items-center justify-center overflow-hidden"
-          style={{ background: "#0f0e0c" }}
+          style={{ background: "transparent" }}
         >
 
 
 <div className="w-full h-full flex items-center justify-center px-1">
-  <img
-    key={currentPage}
-    src={`${import.meta.env.BASE_URL}pages/${currentPage}.jpg`}
-    alt={`Page ${currentPage}`}
-    className="rounded-lg"
-    style={{
-      maxHeight: "100vh",
-      maxWidth: "100%",
-      boxShadow: "0 8px 48px rgba(0,0,0,0.7)",
-    }}
-  />
+  <div className="relative inline-block">
+
+    <img
+      src={`${import.meta.env.BASE_URL}pages/${currentPage}.jpg`}
+      alt={`Page ${currentPage}`}
+      className="rounded-lg"
+      style={{
+        maxHeight: "100vh",
+        maxWidth: "100%",
+        boxShadow: "0 8px 48px rgba(0,0,0,0.7)",
+        filter: "brightness(0.9) sepia(0.05)",
+        opacity: isChanging ? 0.7 : 1,
+        transition: "opacity 120ms ease",
+      }}
+    />
+
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(255,240,220,0.08)",
+        pointerEvents: "none",
+        borderRadius: "8px",
+      }}
+    />
+
+    {/* Previous */}
+    <button
+      onClick={() => goToPage(currentPage - 1)}
+      disabled={currentPage <= 1}
+      className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-200 hover:scale-110"
+      style={{
+        left: "-28px",
+        width: "52px",
+        height: "80px",
+        background:
+          currentPage <= 1
+            ? "rgba(30,27,20,0.3)"
+            : "linear-gradient(135deg, rgba(255,215,100,0.95), rgba(201,169,110,0.95))",
+        color: currentPage <= 1 ? "#3a3228" : "#111",
+        borderRadius: "12px",
+        border: "1px solid rgba(201,169,110,0.25)",
+        boxShadow:
+          "0 0 15px rgba(255,215,100,0.4), 0 0 35px rgba(255,215,100,0.25)",
+        zIndex: 20,
+      }}
+    >
+      <ChevronLeft size={28} />
+    </button>
+
+    {/* Next */}
+    <button
+      onClick={() => goToPage(currentPage + 1)}
+      disabled={currentPage >= TOTAL_PAGES}
+      className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-200 hover:scale-110"
+      style={{
+        right: "-28px",
+        width: "52px",
+        height: "80px",
+        background:
+          currentPage >= TOTAL_PAGES
+            ? "rgba(30,27,20,0.3)"
+            : "linear-gradient(135deg, rgba(255,215,100,0.95), rgba(201,169,110,0.95))",
+        color: currentPage >= TOTAL_PAGES ? "#3a3228" : "#111",
+        borderRadius: "12px",
+        border: "1px solid rgba(201,169,110,0.25)",
+        boxShadow:
+          "0 0 15px rgba(255,215,100,0.4), 0 0 35px rgba(255,215,100,0.25)",
+        zIndex: 20,
+      }}
+    >
+      <ChevronRight size={28} />
+    </button>
+
+  </div>
 </div>
-
         </main>
-
-        <button
-          onClick={() => goToPage(currentPage - 1)}
-          disabled={currentPage <= 1}
-          className="fixed left-0 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-          style={{
-            width: "40px",
-            height: "64px",
-            background:
-              currentPage <= 1
-                ? "rgba(30,27,20,0.3)"
-                : "linear-gradient(135deg, rgba(201,169,110,0.18), rgba(201,169,110,0.08))",
-            borderRadius: "0 8px 8px 0",
-            border: "1px solid",
-            borderColor: currentPage <= 1 ? "rgba(58,50,40,0.3)" : "rgba(201,169,110,0.25)",
-            borderLeft: "none",
-            color: currentPage <= 1 ? "#3a3228" : "#c9a96e",
-            backdropFilter: "blur(4px)",
-            marginLeft: isSidebarOpen ? "200px" : "0",
-              transition: "margin-left 0.3s ease",
-          }}
-          aria-label="Previous page"
-        >
-          <ChevronLeft size={20} />
-        </button>
-
-        <button
-          onClick={() => goToPage(currentPage + 1)}
-          disabled={currentPage >= TOTAL_PAGES}
-          className="fixed right-0 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-          style={{
-            width: "40px",
-            height: "64px",
-            background:
-              currentPage >= TOTAL_PAGES
-                ? "rgba(30,27,20,0.3)"
-                : "linear-gradient(135deg, rgba(201,169,110,0.18), rgba(201,169,110,0.08))",
-            borderRadius: "8px 0 0 8px",
-            border: "1px solid",
-            borderColor:
-              currentPage >= TOTAL_PAGES ? "rgba(58,50,40,0.3)" : "rgba(201,169,110,0.25)",
-            borderRight: "none",
-            color: currentPage >= TOTAL_PAGES ? "#3a3228" : "#c9a96e",
-            backdropFilter: "blur(4px)",
-          }}
-          aria-label="Next page"
-        >
-          <ChevronRight size={20} />
-        </button>
       </div>
     </div>
   );
