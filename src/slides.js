@@ -1,0 +1,28 @@
+const slides = [
+  { pageNumber: 1, title: "Cover", chapter: "cover" },
+  { pageNumber: 2, title: "Title", chapter: "title page" },
+  { pageNumber: 3, title: "Preface", chapter: "preface" },
+  { pageNumber: 4, title: "Table of Contents", chapter: "index" },
+  { pageNumber: 5, title: "Intro", chapter: "introduction" },
+  { pageNumber: 6, title: "Letters-1", chapter: "letters" },
+  { pageNumber: 7, title: "Letters-2", chapter: "letters" },
+  { pageNumber: 8, title: "Letters-3", chapter: "letters" },
+  { pageNumber: 9, title: "Letters-4", chapter: "letters" },
+  { pageNumber: 10, title: "Letters-5", chapter: "letters" },
+  { pageNumber: 11, title: "Letters-6", chapter: "letters" },
+  { pageNumber: 12, title: "Letters-7", chapter: "letters" },
+  { pageNumber: 13, title: "Quiz", chapter: "quiz" },
+  { pageNumber: 14, title: "Letters-8", chapter: "letters" },
+  { pageNumber: 15, title: "Letters-9", chapter: "letters" },
+  { pageNumber: 16, title: "Letters-10", chapter: "letters" },
+  { pageNumber: 17, title: "Letters-11", chapter: "letters" },
+  { pageNumber: 18, title: "Quiz", chapter: "quiz" },
+  { pageNumber: 19, title: "Matras", chapter: "matras" },
+  { pageNumber: 20, title: "Matras", chapter: "matras" },
+  { pageNumber: 21, title: "Examples", chapter: "examples" },
+  { pageNumber: 22, title: "Congrats", chapter: "congrats" },
+  { pageNumber: 23, title: "Quiz", chapter: "quiz" },
+  { pageNumber: 24, title: "About Me", chapter: "about" },
+];
+
+export default slides;

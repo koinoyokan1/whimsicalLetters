@@ -2,6 +2,7 @@ import useBookReader from "./useBookReader";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import PageImage from "./PageImage";
+import slides from "./slides";
 import { useState } from "react";
 import AboutModal from "./AboutModal";
 
@@ -48,9 +49,14 @@ export default function BookReader() {
         {/* Sidebar */}
         <Sidebar
           isOpen={isSidebarOpen}
+          visible={isSidebarOpen}
+          onClose={toggleSidebar}
           currentPage={currentPage}
           totalPages={TOTAL_PAGES}
           goToPage={goToPage}
+          slides={slides}
+          completedPages={[]}
+          onAbout={() => setShowAbout(true)}
         />
 
         {/* Main content */}
@@ -64,6 +70,7 @@ export default function BookReader() {
             <div className="relative flex items-center justify-center page-card max-h-full max-w-full">
               <PageImage
                 totalPages={TOTAL_PAGES}
+                currentPage={currentPage}
                 onPageTurned={pageTurned}
               />
             </div>

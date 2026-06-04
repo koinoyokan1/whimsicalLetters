@@ -18,7 +18,7 @@ const BookPage = forwardRef(({ pageNumber, blobUrl }, ref) => {
 
 BookPage.displayName = "BookPage";
 
-export default function PageImage({ totalPages, onPageTurned }) {
+export default function PageImage({ totalPages, onPageTurned, currentPage }) {
   const bookRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
   
@@ -92,6 +92,27 @@ export default function PageImage({ totalPages, onPageTurned }) {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
+
+  // Sync external `currentPage` prop to the flipbook instance
+  useEffect(() => {
+    if (!bookRef.current || typeof currentPage !== "number") return;
+    const flip = bookRef.current.pageFlip();
+    if (!flip) return;
+    try {
+      const desired = Math.max(0, currentPage - 1);
+      const cur = typeof flip.getCurrentPageIndex === "function" ? flip.getCurrentPageIndex() : null;
+      if (cur === desired) return;
+      if (typeof flip.flipToPage === "function") {
+        flip.flipToPage(desired);
+      } else if (typeof flip.turnToPage === "function") {
+        flip.turnToPage(desired);
+      } else if (typeof flip.show === "function") {
+        flip.show(desired);
+      }
+    } catch (e) {
+      // ignore sync errors
+    }
+  }, [currentPage]);
 
   const handlePageFlip = (e) => {
     setHasInteracted(true); // Dismisses onboarding hints on drag/click flip
