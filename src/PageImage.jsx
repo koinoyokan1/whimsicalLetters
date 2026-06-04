@@ -3,11 +3,11 @@ import { forwardRef, useRef, useEffect, useState } from "react";
 // Imported Chevron icons to act as visual cues
 import { ChevronLeft, ChevronRight, MoveHorizontal } from "lucide-react";
 
-const BookPage = forwardRef(({ pageNumber }, ref) => {
+const BookPage = forwardRef(({ pageNumber, blobUrl }, ref) => {
   return (
     <div ref={ref} className="w-full h-full bg-white">
       <img
-        src={`${import.meta.env.BASE_URL}pages/${pageNumber}.jpg`}
+        src={blobUrl || `${import.meta.env.BASE_URL}pages/${pageNumber}.jpg`}
         alt={`Page ${pageNumber}`}
         className="w-full h-full object-contain select-none"
         draggable={false}
@@ -24,6 +24,47 @@ export default function PageImage({ totalPages, onPageTurned }) {
   
   // New State: Tracks if the user has interacted yet to show/hide hints
   const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Prefetch cache: store object URLs for each page so flipping doesn't refetch
+  const blobCacheRef = useRef({});
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const controllers = [];
+    const base = import.meta.env.BASE_URL;
+
+    (async () => {
+      const cache = blobCacheRef.current || {};
+      for (let p = 1; p <= totalPages; p++) {
+        if (cache[p]) continue;
+        try {
+          const controller = new AbortController();
+          controllers.push(controller);
+          const res = await fetch(`${base}pages/${p}.jpg`, { signal: controller.signal, cache: 'force-cache' });
+          if (!res.ok) continue;
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          cache[p] = url;
+          if (cancelled) { URL.revokeObjectURL(url); break; }
+          blobCacheRef.current = cache;
+          setTick((t) => t + 1);
+        } catch (e) {
+          // ignore fetch errors per-page
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controllers.forEach((c) => c.abort());
+      const cache = blobCacheRef.current || {};
+      Object.values(cache).forEach((u) => {
+        try { URL.revokeObjectURL(u); } catch (e) {}
+      });
+      blobCacheRef.current = {};
+    };
+  }, [totalPages]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -122,7 +163,11 @@ export default function PageImage({ totalPages, onPageTurned }) {
           onFlip={handlePageFlip} // Triggers the dismiss handle
         >
           {Array.from({ length: totalPages }, (_, i) => (
-            <BookPage key={i + 1} pageNumber={i + 1} />
+            <BookPage
+              key={i + 1}
+              pageNumber={i + 1}
+              blobUrl={blobCacheRef.current?.[i + 1]}
+            />
           ))}
         </HTMLFlipBook>
       </div>
